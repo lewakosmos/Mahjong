@@ -5,9 +5,10 @@ import java.util.*;
 public class GamePanel {
     private JPanel finishedPanel;
     private ArrayList<String> finishedButtonNameList;
-    private ArrayList<JButton> finishedButtonActionList;
-    private int deskFacet;
-    private int pairNumber;
+    private static ArrayList<JButton> finishedButtonActionList;
+    private static int deskFacet;
+    private static int pairNumber;
+    private static int triesCounter;
     public JPanel gamePanelCreator(){
         finishedPanel = new JPanel();
         finishedPanel.setLayout(new GridLayout(deskFacet, deskFacet));
@@ -15,7 +16,7 @@ public class GamePanel {
         return finishedPanel;
     }
     public void buttonTableCreator(){
-        buttonNamesCreator();
+        tileNamesCreator();
         finishedButtonActionList = new ArrayList<>();
         int tileAmount = (int) Math.pow(deskFacet, 2);
         for(int i = 0; i < tileAmount; i++){
@@ -28,7 +29,7 @@ public class GamePanel {
         }
         buttonActionCreator();
     }
-    public void buttonNamesCreator(){
+    public void tileNamesCreator(){
         int tileAmount = (int) Math.pow(deskFacet, 2);
         ArrayList<String> orderedList = new ArrayList<>();
         orderedList.addAll(firstPairListCreator());
@@ -65,34 +66,52 @@ public class GamePanel {
     }
     public void buttonActionCreator(){
         ArrayList<JButton> localCheckButtonList = new ArrayList<>();
-        for(JButton button : finishedButtonActionList){
-            button.addActionListener(e -> {
-                button.setBackground(Color.white);
-                button.setEnabled(false);
-                localCheckButtonList.add(button);
-                if(localCheckButtonList.size() ==2 &&
-                        !localCheckButtonList.get(0).getText().equals(localCheckButtonList.get(1).getText())){
-                    localCheckButtonList.forEach(JButton -> JButton.setBackground(Color.CYAN));
-                    localCheckButtonList.forEach(JButton -> JButton.setEnabled(true));
-                    localCheckButtonList.clear();
-                }
-                else if(localCheckButtonList.size() ==2 &&
-                        localCheckButtonList.get(0).getText().equals(localCheckButtonList.get(1).getText())){
-                    localCheckButtonList.clear();
-                }
-            });
+        ArrayList<JButton> localButtonList = new ArrayList<>(finishedButtonActionList);
+        for(JButton button : localButtonList){
+            buttonOptionCreator(button, localCheckButtonList);
         }
     }
-
+    public void buttonOptionCreator(JButton button, ArrayList<JButton> localCheckButtonList){
+        button.addActionListener(e -> {
+            button.setBackground(Color.white);
+            button.setEnabled(false);
+            localCheckButtonList.add(button);
+            if(localCheckButtonList.size() ==2 &&
+                    !localCheckButtonList.get(0).getText().equals(localCheckButtonList.get(1).getText())){
+                localCheckButtonList.forEach(JButton -> JButton.setBackground(Color.CYAN));
+                localCheckButtonList.forEach(JButton -> JButton.setEnabled(true));
+                localCheckButtonList.clear();
+                triesCounter++;
+            }
+            else if(localCheckButtonList.size() ==2 &&
+                    localCheckButtonList.get(0).getText().equals(localCheckButtonList.get(1).getText())){
+                finishedButtonActionList.removeAll(localCheckButtonList);
+                localCheckButtonList.clear();
+                triesCounter++;
+            }
+            listSizeException();
+        });
+    }
+    public void listSizeException(){
+        if(finishedButtonActionList.size() == 1){
+            finishedButtonActionList.clear();
+        }
+    }
     public void setDeskFacet(int deskFacet){
         if(deskFacet == 2){
-            this.deskFacet = deskFacet;
+            GamePanel.deskFacet = deskFacet;
         }
         else{
-            this.deskFacet = ((int) Math.sqrt(deskFacet*2)) + 1;
+            GamePanel.deskFacet = ((int) Math.sqrt(deskFacet*2)) + 1;
         }
     }
     public void setPairNumber(int pairNumber){
-        this.pairNumber = pairNumber;
+        GamePanel.pairNumber = pairNumber;
+    }
+    public int getTriesCounter(){
+        return triesCounter;
+    }
+    public ArrayList<JButton> getFinishedButtonActionList(){
+        return finishedButtonActionList;
     }
 }
